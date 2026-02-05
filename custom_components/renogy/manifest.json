@@ -2,9 +2,11 @@
   "domain": "renogy",
   "name": "Renogy",
   "bluetooth": [
-    {
-      "local_name": "BT-TH-*"
-    }
+    { "local_name": "BT-TH-*" },
+    { "local_name": "DC-*" },
+    { "local_name": "RNG-*" },
+    { "local_name": "BAT-*" },
+    { "local_name": "RBT*" }
   ],
   "codeowners": [
     "@IAmTheMitchell"
