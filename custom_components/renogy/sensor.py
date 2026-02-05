@@ -116,6 +116,20 @@ KEY_TEMPERATURE_COMPENSATION = "temperature_compensation"
 KEY_REVERSE_CHARGING_VOLTAGE = "reverse_charging_voltage"
 KEY_SOLAR_CUTOFF_CURRENT = "solar_cutoff_current"
 
+# Battery (LFP) specific sensor keys
+KEY_VOLTAGE = "voltage"
+KEY_CURRENT = "current"
+KEY_SOC = "soc"
+KEY_POWER = "power"
+KEY_CAPACITY = "capacity"
+KEY_REMAINING_CHARGE = "remaining_charge"
+KEY_CELL_COUNT = "cell_count"
+KEY_SENSOR_COUNT = "sensor_count"
+# Cell voltage keys (0-15)
+KEY_CELL_VOLTAGE_PREFIX = "cell_voltage_"
+# Temperature keys (0-15)
+KEY_TEMPERATURE_PREFIX = "temperature_"
+
 
 @dataclass
 class RenogyBLESensorDescription(SensorEntityDescription):
@@ -593,6 +607,141 @@ DCC_ALL_SENSORS = (
     + DCC_DIAGNOSTIC_SENSORS
 )
 
+# ============================================================================
+# Battery (LFP) specific sensors
+# These are for Renogy LFP batteries with built-in Bluetooth or BT-2 module
+# ============================================================================
+
+BATTERY_LFP_MAIN_SENSORS: tuple[RenogyBLESensorDescription, ...] = (
+    RenogyBLESensorDescription(
+        key=KEY_VOLTAGE,
+        name="Battery Voltage",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_VOLTAGE),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_CURRENT,
+        name="Battery Current",
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+        device_class=SensorDeviceClass.CURRENT,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_CURRENT),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_SOC,
+        name="State of Charge",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.BATTERY,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_SOC),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_POWER,
+        name="Battery Power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_POWER),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_CAPACITY,
+        name="Battery Capacity",
+        native_unit_of_measurement="Ah",
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_CAPACITY),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_REMAINING_CHARGE,
+        name="Remaining Charge",
+        native_unit_of_measurement="Ah",
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get(KEY_REMAINING_CHARGE),
+    ),
+)
+
+BATTERY_LFP_DIAGNOSTIC_SENSORS: tuple[RenogyBLESensorDescription, ...] = (
+    RenogyBLESensorDescription(
+        key=KEY_DEVICE_ID,
+        name="Device ID",
+        device_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get(KEY_DEVICE_ID),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_MODEL,
+        name="Model",
+        device_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get(KEY_MODEL),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_CELL_COUNT,
+        name="Cell Count",
+        device_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get(KEY_CELL_COUNT),
+    ),
+    RenogyBLESensorDescription(
+        key=KEY_SENSOR_COUNT,
+        name="Temperature Sensor Count",
+        device_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get(KEY_SENSOR_COUNT),
+    ),
+)
+
+
+def _create_cell_voltage_sensors() -> tuple[RenogyBLESensorDescription, ...]:
+    """Create sensor descriptions for cell voltages (up to 16 cells)."""
+    sensors = []
+    for i in range(16):
+        key = f"{KEY_CELL_VOLTAGE_PREFIX}{i}"
+        sensors.append(
+            RenogyBLESensorDescription(
+                key=key,
+                name=f"Cell {i + 1} Voltage",
+                native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+                device_class=SensorDeviceClass.VOLTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+                value_fn=lambda data, k=key: data.get(k),
+            )
+        )
+    return tuple(sensors)
+
+
+def _create_temperature_sensors() -> tuple[RenogyBLESensorDescription, ...]:
+    """Create sensor descriptions for temperature sensors (up to 16 sensors)."""
+    sensors = []
+    for i in range(16):
+        key = f"{KEY_TEMPERATURE_PREFIX}{i}"
+        sensors.append(
+            RenogyBLESensorDescription(
+                key=key,
+                name=f"Temperature {i + 1}",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+                value_fn=lambda data, k=key: data.get(k),
+            )
+        )
+    return tuple(sensors)
+
+
+BATTERY_LFP_CELL_VOLTAGE_SENSORS = _create_cell_voltage_sensors()
+BATTERY_LFP_TEMPERATURE_SENSORS = _create_temperature_sensors()
+
+# All Battery (LFP) sensors combined
+BATTERY_LFP_ALL_SENSORS = (
+    BATTERY_LFP_MAIN_SENSORS
+    + BATTERY_LFP_CELL_VOLTAGE_SENSORS
+    + BATTERY_LFP_TEMPERATURE_SENSORS
+    + BATTERY_LFP_DIAGNOSTIC_SENSORS
+)
+
 # All sensors combined (for controller type)
 ALL_SENSORS = BATTERY_SENSORS + PV_SENSORS + LOAD_SENSORS + CONTROLLER_SENSORS
 
@@ -611,6 +760,12 @@ SENSORS_BY_DEVICE_TYPE = {
         "Status": DCC_STATUS_SENSORS,
         "Statistics": DCC_STATISTICS_SENSORS,
         "Diagnostic": DCC_DIAGNOSTIC_SENSORS,
+    },
+    DeviceType.BATTERY.value: {
+        "Main": BATTERY_LFP_MAIN_SENSORS,
+        "Cell Voltages": BATTERY_LFP_CELL_VOLTAGE_SENSORS,
+        "Temperatures": BATTERY_LFP_TEMPERATURE_SENSORS,
+        "Diagnostic": BATTERY_LFP_DIAGNOSTIC_SENSORS,
     },
 }
 

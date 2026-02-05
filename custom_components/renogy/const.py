@@ -36,7 +36,11 @@ DEVICE_TYPES = [e.value for e in DeviceType]
 DEFAULT_DEVICE_TYPE = DeviceType.CONTROLLER.value
 
 # List of fully supported device types
-SUPPORTED_DEVICE_TYPES = [DeviceType.CONTROLLER.value, DeviceType.DCC.value]
+SUPPORTED_DEVICE_TYPES = [
+    DeviceType.CONTROLLER.value,
+    DeviceType.DCC.value,
+    DeviceType.BATTERY.value,
+]
 
 
 # DCC Charger Register Addresses (for write operations)
