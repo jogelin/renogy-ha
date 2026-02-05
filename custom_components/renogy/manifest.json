@@ -5,9 +5,8 @@
     { "local_name": "BT-TH-*" },
     { "manufacturer_id": 57676 },
     { "local_name": "RNGRBP*" },
-    { "local_name": "RBT*" },
-    { "local_name": "DC-*" },
-    { "local_name": "BAT-*" }
+    { "local_name": "BTRIC*" },
+    { "local_name": "RBT*" }
   ],
   "codeowners": [
     "@IAmTheMitchell"
