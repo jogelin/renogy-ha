@@ -15,6 +15,9 @@ MAX_SCAN_INTERVAL = 600  # seconds
 # Renogy BT-1 and BT-2 module identifiers - devices advertise with these prefixes
 RENOGY_BT_PREFIX = "BT-TH-"
 
+# All Renogy device prefixes (controllers, batteries, etc.)
+RENOGY_DEVICE_PREFIXES = ("BT-TH-", "RNGRBP", "BTRIC", "RBT")
+
 # Configuration parameters
 CONF_SCAN_INTERVAL = "scan_interval"
 CONF_DEVICE_TYPE = "device_type"  # New constant for device type
@@ -36,7 +39,11 @@ DEVICE_TYPES = [e.value for e in DeviceType]
 DEFAULT_DEVICE_TYPE = DeviceType.CONTROLLER.value
 
 # List of fully supported device types
-SUPPORTED_DEVICE_TYPES = [DeviceType.CONTROLLER.value, DeviceType.DCC.value]
+SUPPORTED_DEVICE_TYPES = [
+    DeviceType.CONTROLLER.value,
+    DeviceType.DCC.value,
+    DeviceType.BATTERY.value,
+]
 
 
 # DCC Charger Register Addresses (for write operations)
