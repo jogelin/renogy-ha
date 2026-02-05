@@ -3,10 +3,11 @@
   "name": "Renogy",
   "bluetooth": [
     { "local_name": "BT-TH-*" },
+    { "local_name": "RNGRBP*" },
+    { "local_name": "RBT*" },
     { "local_name": "DC-*" },
     { "local_name": "RNG-*" },
-    { "local_name": "BAT-*" },
-    { "local_name": "RBT*" }
+    { "local_name": "BAT-*" }
   ],
   "codeowners": [
     "@IAmTheMitchell"
