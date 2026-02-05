@@ -3,7 +3,7 @@
   "name": "Renogy",
   "bluetooth": [
     { "local_name": "BT-TH-*" },
-    { "local_name": "RNG*", "manufacturer_id": 57676 },
+    { "manufacturer_id": 57676 },
     { "local_name": "RNGRBP*" },
     { "local_name": "RBT*" },
     { "local_name": "DC-*" },
